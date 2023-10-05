@@ -27,8 +27,7 @@ public class PlayerController : MonoBehaviour
 
 
 
-    public  static event Action OnPlayerDeath;
-    public static event Action FinishGame;//setting event
+    public  static event Action OnPlayerDeath; //setting event
 
     // Start is called before the first frame update
     void Start()
@@ -60,7 +59,7 @@ public class PlayerController : MonoBehaviour
 
     private void Movement()
     {
-        float Hdirection = Input.GetAxis("Horizontal");
+        float Hdirection = Input.GetAxisRaw("Horizontal");
 
         if (Hdirection < 0)
         {
@@ -90,11 +89,6 @@ public class PlayerController : MonoBehaviour
                 coins += 1;
             coinText.text = coins.ToString();
             
-        }
-        if (collision.gameObject.name == "House")
-        {
-            rb.bodyType = RigidbodyType2D.Static;
-            FinishGame?.Invoke();
         }
     }
     private void OnCollisionEnter2D(Collision2D other)
