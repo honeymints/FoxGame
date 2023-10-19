@@ -10,7 +10,7 @@ public class UIManager : MonoBehaviour
     
     private void OnEnable()
     {
-        PlayerController.OnPlayerDeath += EnableGameOverMenu; //wtf is that
+        PlayerController.OnPlayerDeath += EnableGameOverMenu;
     }
     private void OnDisable()
     {

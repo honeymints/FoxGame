@@ -9,11 +9,12 @@ TagManager:
   - Enemy
   - Trap
   - Lava
+  - Ladders
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Player
   - Water
   - UI
   - Ground
@@ -58,20 +59,23 @@ TagManager:
   - name: House
     uniqueID: 173985777
     locked: 0
+  - name: Lava
+    uniqueID: 851854479
+    locked: 0
+  - name: Trap
+    uniqueID: 1316873435
+    locked: 0
+  - name: Tilemap
+    uniqueID: 1624502119
+    locked: 0
+  - name: ladders
+    uniqueID: 2589144311
+    locked: 0
   - name: entity
     uniqueID: 2269663967
     locked: 0
   - name: platform
     uniqueID: 2779744231
-    locked: 0
-  - name: Trap
-    uniqueID: 1316873435
-    locked: 0
-  - name: Lava
-    uniqueID: 851854479
-    locked: 0
-  - name: Tilemap
-    uniqueID: 1624502119
     locked: 0
   - name: grass
     uniqueID: 295641335

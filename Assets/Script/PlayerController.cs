@@ -1,21 +1,37 @@
- using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 using TMPro;
-using UnityEngine.SceneManagement;
 using System;
+using Vector2 = UnityEngine.Vector2;
+using Vector3 = UnityEngine.Vector3;
+
 public class PlayerController : MonoBehaviour
 {
 
     //Start Variables
     private Rigidbody2D rb;
     private Animator anim;
-    private enum State { idle, running, jumping, falling, hurt };
+    private enum State { idle, running, jumping, falling, hurt, climb};
     private State state = State.idle;
     private Collider2D coll;
     
+    private float Hdirection;
 
+    #region Climb booleans
+
+    private bool isNearLadder = false;
+    private bool climbHeld = false;
+    private bool hasStartedClimbing = false;
+
+    #endregion
+
+    #region Climb parameters
+
+    private float vertical;
+    private Transform ladders;
+    private float climbSpeed = 0.3f;
+
+    #endregion
+    
     //Inspector Variables
     [SerializeField] private LayerMask ground;
     [SerializeField] private float speed = 5f;
@@ -24,10 +40,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private TextMeshProUGUI coinText;
     [SerializeField] private float hurtForce = 3f;
     public float health { get; private set; } = 3f;
-
-
-
-    public  static event Action OnPlayerDeath; //setting event
+    
+    public static event Action OnPlayerDeath; //setting event
 
     // Start is called before the first frame update
     void Start()
@@ -35,31 +49,48 @@ public class PlayerController : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
         coll = GetComponent<Collider2D>();
-
+        
     }
 
+        
 
     // Update is called once per frame
     void Update()
     {
-        if (transform.position.y < -8f)
-        {
-            transform.position = new Vector3(-1f, 0.65f, 0);
-        }
         if (state != State.hurt)
         {
             Movement();
         }
-        VelocityState();
-        anim.SetInteger("state", (int)state); //sets animation on enumerator state
-    }
-   
-   
 
+        anim.SetInteger("state", (int)state); //sets animation on enumerator state
+        VelocityState();
+
+        climbHeld = (isNearLadder && Input.GetButton("Climb")) ? true : false;
+        vertical = Input.GetAxisRaw("Vertical") * climbSpeed;
+        
+        CheckIfPlayerStartedClimb();
+    }
+
+    private void FixedUpdate()
+    {
+        Climbing();
+    }
+
+    private void CheckIfPlayerStartedClimb()
+    {
+        if (climbHeld)
+        {
+            if (!hasStartedClimbing)
+            {
+                hasStartedClimbing = true;
+            }
+        }
+    }
+    
 
     private void Movement()
     {
-        float Hdirection = Input.GetAxisRaw("Horizontal");
+        Hdirection = Input.GetAxisRaw("Horizontal");
 
         if (Hdirection < 0)
         {
@@ -70,30 +101,114 @@ public class PlayerController : MonoBehaviour
         {
             rb.velocity = new Vector2(speed, rb.velocity.y);
             transform.localScale = new Vector2(1, 1);
-
         }
 
         if (Input.GetButtonDown("Jump") && coll.IsTouchingLayers(ground))
         {
             Jump();
         }
+        
     }
 
-    
-
-    private void OnTriggerEnter2D(Collider2D collision)
+    private void Climbing()
     {
-        if (collision.tag== "Collectable")
+        if (hasStartedClimbing && !climbHeld)
         {
-            Destroy(collision.gameObject);
-                coins += 1;
-            coinText.text = coins.ToString();
-            
+            if (Hdirection<0 || Hdirection>0)
+            {
+                StopClimb();
+            }
+        }
+        else if (hasStartedClimbing && climbHeld)
+        {
+            float height = GetComponent<SpriteRenderer>().size.y;
+            float topLadderHandler = Half(ladders.transform.GetChild(0).position.y+height);
+            float bottomLadderHandler = Half(ladders.transform.GetChild(1).position.y+height);
+            float posY = Half(transform.position.y);
+            float verticalY = Math.Abs(posY)+Math.Abs(vertical);
+
+            Debug.Log("here is " + height + " " + bottomLadderHandler + " " + topLadderHandler + " " + transform.position.y);
+            if(verticalY>=topLadderHandler || verticalY<bottomLadderHandler)
+            {
+                
+                StopClimb();
+            }
+            else if(verticalY<topLadderHandler || verticalY>=bottomLadderHandler)
+            {
+                if (!transform.position.x.Equals(ladders.position.x))
+                {
+                    Debug.Log("change the player's position to ladders");
+                    transform.position = new Vector3(ladders.position.x, transform.position.y, transform.position.z);
+                }
+                rb.bodyType = RigidbodyType2D.Kinematic;
+                Vector3 forwardDirection = new Vector3(0, verticalY, 0);
+                Vector3 newPos = Vector3.zero;
+                if(vertical>0)
+                {
+                    newPos = transform.position + forwardDirection * Time.deltaTime*3;
+                    Debug.Log("when player is going up " + verticalY);
+                }
+                else if(vertical<0)
+                {
+                    newPos = transform.position - forwardDirection * Time.deltaTime*3;
+                    Debug.Log("when player is going down " + verticalY);
+                }
+                
+                if (newPos != Vector3.zero)
+                {
+                    rb.MovePosition(newPos);
+                    
+                }
+            }
+        }
+        
+    }
+
+    private float Half(float value)
+    {
+        return Mathf.Floor(value) + 0.5f;
+        
+    }
+
+    private void StopClimb()
+    {
+        if (hasStartedClimbing)
+        {
+            hasStartedClimbing = false;
+            rb.bodyType = RigidbodyType2D.Dynamic;
+            transform.position = new Vector3(transform.position.x, Half(transform.position.y),transform.position.z);
         }
     }
+
+    private void OnTriggerEnter2D(Collider2D col)
+    {
+        if (col.CompareTag("Collectable"))
+        {
+            Destroy(col.gameObject);
+                coins += 1;
+            coinText.text = coins.ToString();
+        }
+
+        if (col.CompareTag("Ladders"))
+        {
+            isNearLadder = true;
+            this.ladders= col.transform;
+        }
+
+    }
+
+    private void OnTriggerExit2D(Collider2D other)
+    {
+        if (other.CompareTag("Ladders"))
+        {
+            isNearLadder = false;
+        }
+    }
+
+
     private void OnCollisionEnter2D(Collision2D other)
     {
-        if (other.gameObject.tag == "Enemy")
+        if (other.gameObject.CompareTag("Enemy"))
         {
             Enemy enemy = other.gameObject.GetComponent<Enemy>();
             if(state == State.falling) 
@@ -122,7 +237,7 @@ public class PlayerController : MonoBehaviour
                 }
             }
         }
-        if (other.gameObject.tag=="Trap")
+        if (other.gameObject.CompareTag("Trap"))
         {
             
             Jump();
@@ -190,13 +305,12 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        else if (Mathf.Abs(rb.velocity.x) > 2f)
+        else if (Mathf.Abs(rb.velocity.x) > 1f)
         {
             state = State.running;
         }
         else
         {
-            
             state = State.idle;
             rb.velocity = Vector3.zero;
         }
