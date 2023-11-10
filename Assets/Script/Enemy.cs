@@ -24,12 +24,16 @@ public class Enemy : MonoBehaviour
     public void TakeDamage(int damage)
     {
         health -= damage;
+        if (health > 0)
+        {
+            anim.SetTrigger("Damage");
 
-        if (health <= 0)
+        }
+        else if (health <= 0)
         {
             anim.SetTrigger("Death");
 
-            Invoke("Death()", 2); 
+            Invoke("Death()", 2);
         }
     }
     private void Death()
