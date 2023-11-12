@@ -47,6 +47,15 @@ public class PlayerController : MonoBehaviour
     
     public static event Action OnPlayerDeath; //setting event
 
+    #region Sound
+    [SerializeField] private AudioClip coinSound;
+    [SerializeField] private AudioSource footStep;
+    [SerializeField] private AudioSource jumpingSound;
+    [SerializeField] private AudioSource hurtSound;
+    [SerializeField] private AudioSource deathSound;
+
+    #endregion
+
     // Start is called before the first frame update
     void Start()
     {
@@ -101,7 +110,11 @@ public class PlayerController : MonoBehaviour
         }
     }
     
-
+    private void Footstep()
+    {
+        SoundManager.instance.PlaySoundSource(footStep);
+    }
+    
     private void Movement()
     {
         Hdirection = Input.GetAxisRaw("Horizontal");
@@ -198,6 +211,7 @@ public class PlayerController : MonoBehaviour
     {
         if (col.CompareTag("Collectable"))
         {
+            SoundManager.instance.PlaySound(coinSound);
             Destroy(col.gameObject);
                 coins += 1;
             coinText.text = coins.ToString();
@@ -262,6 +276,7 @@ public class PlayerController : MonoBehaviour
     }
     private void Death()
     {
+        SoundManager.instance.PlaySoundSource(deathSound);
         rb.bodyType = RigidbodyType2D.Static;
         anim.SetTrigger("death");
         coll.enabled = false;
@@ -272,6 +287,7 @@ public class PlayerController : MonoBehaviour
     {
         
         health -= 1;
+        SoundManager.instance.PlaySoundSource(hurtSound);
         if (health<=0)
         {
             OnPlayerDeath?.Invoke();
@@ -285,6 +301,7 @@ public class PlayerController : MonoBehaviour
     
     private void Jump()
     {
+        SoundManager.instance.PlaySoundSource(jumpingSound);
         rb.velocity = new Vector2(rb.velocity.x, jumpForce);
         state = State.jumping;
     }

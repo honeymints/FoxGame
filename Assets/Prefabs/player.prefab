@@ -19,6 +19,8 @@ GameObject:
   - component: {fileID: 8687358870675448913}
   - component: {fileID: 3698902657105946795}
   - component: {fileID: 75396615499287941}
+  - component: {fileID: 8057278909080641528}
+  - component: {fileID: 5795985445815361197}
   m_Layer: 0
   m_Name: player
   m_TagString: Untagged
@@ -126,6 +128,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 93c2245422fe3bc44bd1f66ec335e701, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  dialogueUI: {fileID: 0}
   ground:
     serializedVersion: 2
     m_Bits: 64
@@ -134,6 +137,11 @@ MonoBehaviour:
   coins: 0
   coinText: {fileID: 0}
   hurtForce: 5
+  coinSound: {fileID: 0}
+  footStep: {fileID: 0}
+  jumpingSound: {fileID: 0}
+  hurtSound: {fileID: 0}
+  deathSound: {fileID: 0}
 --- !u!95 &462665781488689434
 Animator:
   serializedVersion: 4
@@ -579,3 +587,29 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 2, y: 1.75}
   m_EdgeRadius: 0
+--- !u!114 &8057278909080641528
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 462665781488689424}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5951ee848ce1db241b19477d4dee488a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  firePoint: {fileID: 0}
+  bulletPrefab: {fileID: 2482891604589356799, guid: 8d703fdce6bc93c4dac85a78fd154a18, type: 3}
+--- !u!114 &5795985445815361197
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 462665781488689424}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a8e0887eb81347844b310065e7a2220e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
