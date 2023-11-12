@@ -6,11 +6,13 @@ public class Weapon : MonoBehaviour
 {
     public Transform firePoint;
     public GameObject bulletPrefab;
+    public AudioClip shootSound;
 
     void Update()
     {
         if (Input.GetButtonDown("Fire1"))
         {
+            SoundManager.instance.PlaySound(shootSound);
             Shoot();
         }
         
