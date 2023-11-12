@@ -80,3 +80,6 @@ TagManager:
   - name: grass
     uniqueID: 295641335
     locked: 0
+  - name: Bullet
+    uniqueID: 2003912409
+    locked: 0
