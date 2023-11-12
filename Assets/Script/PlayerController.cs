@@ -6,6 +6,7 @@ using Vector3 = UnityEngine.Vector3;
 
 public class PlayerController : MonoBehaviour
 {
+    [SerializeField] private DialogueUI dialogueUI;
 
     //Start Variables
     private Rigidbody2D rb;
@@ -31,7 +32,10 @@ public class PlayerController : MonoBehaviour
     private float climbSpeed = 0.3f;
 
     #endregion
-    
+
+    public DialogueUI DialogueUI => dialogueUI;
+    public IInteractable Interactable { get; set; }
+
     //Inspector Variables
     [SerializeField] private LayerMask ground;
     [SerializeField] private float speed = 5f;
@@ -57,6 +61,8 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (dialogueUI.IsOpen) return;
+
         if (state != State.hurt)
         {
             Movement();
@@ -69,6 +75,14 @@ public class PlayerController : MonoBehaviour
         vertical = Input.GetAxisRaw("Vertical") * climbSpeed;
         
         CheckIfPlayerStartedClimb();
+
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            if (Interactable != null)
+            {
+                Interactable.Interact(this);
+            }
+        }
     }
 
     private void FixedUpdate()
